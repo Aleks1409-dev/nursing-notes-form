@@ -99,7 +99,7 @@ export async function generateAIContent(formData: NursingForm) {
   const rawNote = generateNote(formData);
   
   const genAI = new GoogleGenerativeAI(process.env.GOOGLE_GEMINI_API_KEY || "");
-  const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+  const model = genAI.getGenerativeModel({ model: "gemini-3.5-flash" });
 
   const prompt = `Actúa como un enfermero experto. Mejora y redacta de forma profesional y clínica la siguiente nota de enfermería. Mantén los datos clínicos exactos pero mejora la redacción para un historial médico: \n\n${rawNote}`;
 
