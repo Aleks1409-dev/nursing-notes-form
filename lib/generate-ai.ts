@@ -8,10 +8,10 @@ export async function generateAIContent(formData: NursingForm) {
   if (!apiKey) throw new Error("GOOGLE_GEMINI_API_KEY no configurada")
 
   const genAI = new GoogleGenerativeAI(apiKey)
-  const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" })
+  const model = genAI.getGenerativeModel({ model: "gemini-3.5-flash" })
   const rawNote = generateNote(formData)
   const prompt = `Actúa como un enfermero experto...`
 
   const result = await model.generateContent(prompt)
   return result.response.text()
-}
+}   
