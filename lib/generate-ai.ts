@@ -8,22 +8,26 @@ export async function generateAIContent(formData: NursingForm) {
   if (!apiKey) throw new Error("GOOGLE_GEMINI_API_KEY no configurada");
 
   const genAI = new GoogleGenerativeAI(apiKey);
-  // Usamos el modelo que ya confirmamos que te funciona
   const model = genAI.getGenerativeModel({ model: "gemini-3.5-flash" }); 
 
   const rawNote = generateNote(formData);
 
-  // Aquí insertamos el System Prompt que te pasó tu novio
   const systemInstruction = `
     Eres un profesional experto en enfermería de cuidados intensivos. 
-    Tu única función es transformar información clínica en notas de enfermería completas, 
-    técnicas, objetivas y cronológicas, siguiendo estrictamente el orden cefalocaudal 
-    y la estructura que te proporcionaré. No inventas datos. Si no se suministra un dato, 
-    no aparece. Responde ÚNICAMENTE con la nota clínica, sin saludos ni presentaciones.
+    Tu única función es transformar información clínica en notas de enfermería profesionales, 
+    técnicas y cronológicas. 
     
-    ESTRUCTURA OBLIGATORIA:
+    REGLAS DE FORMATO:
+    - NO uses asteriscos (**), negritas, ni ningún formato Markdown.
+    - Usa texto plano.
+    - Usa mayúsculas para los títulos de las secciones.
+    - Orden Cefalocaudal estricto.
+    - NO saludes ni te presentes.
+    - Responde ÚNICAMENTE con la nota clínica.
+    
+    ESTRUCTURA:
     1. Inicio (Recibo paciente...)
-    2. Orden Cefalocaudal (Cabeza, Cuello, Respiratorio, Tórax, Extremidades, Abdomen, Genitales, Ext. Inferiores)
+    2. Orden Cefalocaudal (CABEZA, CUELLO, RESPIRATORIO, TÓRAX, EXTREMIDADES, ABDOMEN, GENITALES, EXTREMIDADES INFERIORES)
     3. Final obligatorio: "Paciente continúa bajo monitorización continua y manejo integral conforme a indicaciones médicas."
   `;
 
