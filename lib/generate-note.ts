@@ -1,8 +1,5 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
-// ... (Aquí mantienes exactamente tu tipo NursingForm e initialForm) ...
-// (Pega aquí debajo tu NursingForm y tu initialForm tal cual los tenías)
-
 export type NursingForm = {
   paciente: string
   cama: string
@@ -43,7 +40,46 @@ export type NursingForm = {
   eventos: string
 }
 
-// ... (Mantén tus funciones join y line aquí también) ...
+export const initialForm: NursingForm = {
+  paciente: "",
+  cama: "",
+  fecha: new Date().toISOString().split('T')[0], // Pone la fecha de hoy automáticamente
+  turno: "Mañana",
+  estadoConciencia: "Alerta",
+  glasgow: "15",
+  pupilas: "Isocóricas reactivas",
+  neuroHallazgos: [],
+  neuroObs: "",
+  presionArterial: "",
+  frecuenciaCardiaca: "",
+  ritmo: "Regular",
+  hemoHallazgos: [],
+  hemoObs: "",
+  patronRespiratorio: "Eupneico",
+  saturacion: "",
+  soporteO2: "Aire ambiente",
+  respHallazgos: [],
+  respObs: "",
+  cuello: [],
+  cuelloObs: "",
+  toraxAuscultacion: "Murmullo vesicular conservado",
+  torax: [],
+  toraxObs: "",
+  perfusion: "Adecuada",
+  extremidades: [],
+  extremidadesObs: "",
+  abdomenForma: "Blando y depresible",
+  ruidosIntestinales: "Presentes",
+  abdomen: [],
+  abdomenObs: "",
+  genitales: [],
+  sondaVesical: "No",
+  genitalesObs: "",
+  lesiones: [],
+  lesionesObs: "",
+  eventos: ""
+}
+
 
 function join(items: string[]): string {
   if (items.length === 0) return ""
@@ -71,10 +107,8 @@ export async function generateAIContent(formData: NursingForm) {
   return result.response.text();
 }
 
-// MANTENEMOS TU FUNCIÓN ORIGINAL COMO BASE
 export function generateNote(f: NursingForm): string {
   const lines: string[] = []
-  // ... (todo tu código de generateNote sigue aquí igualito) ...
   const header: string[] = []
   if (f.paciente) header.push(`Paciente: ${f.paciente}`)
   if (f.cama) header.push(`Cama/Ubicación: ${f.cama}`)
