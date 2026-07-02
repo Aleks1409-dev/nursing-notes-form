@@ -93,20 +93,6 @@ function line(label: string, parts: (string | undefined)[]): string {
   return `${label}: ${clean.join(". ")}.`
 }
 
-// NUEVA FUNCIÓN QUE CONECTA CON IA
-export async function generateAIContent(formData: NursingForm) {
-  // Primero generamos el formato base con tu función
-  const rawNote = generateNote(formData);
-  
-  const genAI = new GoogleGenerativeAI(process.env.GOOGLE_GEMINI_API_KEY || "");
-const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-
-  const prompt = `Actúa como un enfermero experto. Mejora y redacta de forma profesional y clínica la siguiente nota de enfermería. Mantén los datos clínicos exactos pero mejora la redacción para un historial médico: \n\n${rawNote}`;
-
-  const result = await model.generateContent(prompt);
-  return result.response.text();
-}
-
 export function generateNote(f: NursingForm): string {
   const lines: string[] = []
   const header: string[] = []
