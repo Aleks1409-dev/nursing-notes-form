@@ -1,93 +1,49 @@
+import { GoogleGenerativeAI } from "@google/generative-ai";
+
+// ... (Aquí mantienes exactamente tu tipo NursingForm e initialForm) ...
+// (Pega aquí debajo tu NursingForm y tu initialForm tal cual los tenías)
+
 export type NursingForm = {
-  // Datos del paciente
   paciente: string
   cama: string
   fecha: string
   turno: string
-  // Neurológico
   estadoConciencia: string
   glasgow: string
   pupilas: string
   neuroHallazgos: string[]
   neuroObs: string
-  // Hemodinamia
   presionArterial: string
   frecuenciaCardiaca: string
   ritmo: string
   hemoHallazgos: string[]
   hemoObs: string
-  // Respiratorio
   patronRespiratorio: string
   saturacion: string
   soporteO2: string
   respHallazgos: string[]
   respObs: string
-  // Cuello
   cuello: string[]
   cuelloObs: string
-  // Tórax
   toraxAuscultacion: string
   torax: string[]
   toraxObs: string
-  // Extremidades
   perfusion: string
   extremidades: string[]
   extremidadesObs: string
-  // Abdomen
   abdomenForma: string
   ruidosIntestinales: string
   abdomen: string[]
   abdomenObs: string
-  // Genitales
   genitales: string[]
   sondaVesical: string
   genitalesObs: string
-  // Lesiones
   lesiones: string[]
   lesionesObs: string
-  // Eventos
   eventos: string
 }
 
-export const initialForm: NursingForm = {
-  paciente: "",
-  cama: "",
-  fecha: "",
-  turno: "Mañana",
-  estadoConciencia: "Alerta",
-  glasgow: "15",
-  pupilas: "Isocóricas reactivas",
-  neuroHallazgos: [],
-  neuroObs: "",
-  presionArterial: "",
-  frecuenciaCardiaca: "",
-  ritmo: "Regular",
-  hemoHallazgos: [],
-  hemoObs: "",
-  patronRespiratorio: "Eupneico",
-  saturacion: "",
-  soporteO2: "Aire ambiente",
-  respHallazgos: [],
-  respObs: "",
-  cuello: [],
-  cuelloObs: "",
-  toraxAuscultacion: "Murmullo vesicular conservado",
-  torax: [],
-  toraxObs: "",
-  perfusion: "Adecuada",
-  extremidades: [],
-  extremidadesObs: "",
-  abdomenForma: "Blando y depresible",
-  ruidosIntestinales: "Presentes",
-  abdomen: [],
-  abdomenObs: "",
-  genitales: [],
-  sondaVesical: "No",
-  genitalesObs: "",
-  lesiones: [],
-  lesionesObs: "",
-  eventos: "",
-}
+// ... (Mantén tus funciones join y line aquí también) ...
 
 function join(items: string[]): string {
   if (items.length === 0) return ""
@@ -101,9 +57,24 @@ function line(label: string, parts: (string | undefined)[]): string {
   return `${label}: ${clean.join(". ")}.`
 }
 
+// NUEVA FUNCIÓN QUE CONECTA CON IA
+export async function generateAIContent(formData: NursingForm) {
+  // Primero generamos el formato base con tu función
+  const rawNote = generateNote(formData);
+  
+  const genAI = new GoogleGenerativeAI(process.env.GOOGLE_GEMINI_API_KEY || "");
+  const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+
+  const prompt = `Actúa como un enfermero experto. Mejora y redacta de forma profesional y clínica la siguiente nota de enfermería. Mantén los datos clínicos exactos pero mejora la redacción para un historial médico: \n\n${rawNote}`;
+
+  const result = await model.generateContent(prompt);
+  return result.response.text();
+}
+
+// MANTENEMOS TU FUNCIÓN ORIGINAL COMO BASE
 export function generateNote(f: NursingForm): string {
   const lines: string[] = []
-
+  // ... (todo tu código de generateNote sigue aquí igualito) ...
   const header: string[] = []
   if (f.paciente) header.push(`Paciente: ${f.paciente}`)
   if (f.cama) header.push(`Cama/Ubicación: ${f.cama}`)
@@ -112,86 +83,16 @@ export function generateNote(f: NursingForm): string {
   lines.push(header.join("  |  "))
   lines.push("")
 
-  lines.push(
-    line("NEUROLÓGICO", [
-      `Paciente ${f.estadoConciencia.toLowerCase()}`,
-      f.glasgow ? `Glasgow ${f.glasgow}/15` : undefined,
-      `pupilas ${f.pupilas.toLowerCase()}`,
-      f.neuroHallazgos.length ? `se evidencia ${join(f.neuroHallazgos).toLowerCase()}` : undefined,
-      f.neuroObs,
-    ]),
-  )
-
-  lines.push(
-    line("HEMODINAMIA", [
-      f.presionArterial ? `TA ${f.presionArterial} mmHg` : undefined,
-      f.frecuenciaCardiaca ? `FC ${f.frecuenciaCardiaca} lpm` : undefined,
-      `ritmo ${f.ritmo.toLowerCase()}`,
-      f.hemoHallazgos.length ? join(f.hemoHallazgos) : undefined,
-      f.hemoObs,
-    ]),
-  )
-
-  lines.push(
-    line("RESPIRATORIO", [
-      `Patrón ${f.patronRespiratorio.toLowerCase()}`,
-      f.saturacion ? `SatO2 ${f.saturacion}%` : undefined,
-      `con ${f.soporteO2.toLowerCase()}`,
-      f.respHallazgos.length ? `presenta ${join(f.respHallazgos).toLowerCase()}` : undefined,
-      f.respObs,
-    ]),
-  )
-
-  lines.push(
-    line("CUELLO", [
-      f.cuello.length ? join(f.cuello) : "Sin alteraciones",
-      f.cuelloObs,
-    ]),
-  )
-
-  lines.push(
-    line("TÓRAX", [
-      f.toraxAuscultacion,
-      f.torax.length ? join(f.torax) : undefined,
-      f.toraxObs,
-    ]),
-  )
-
-  lines.push(
-    line("EXTREMIDADES", [
-      `Perfusión ${f.perfusion.toLowerCase()}`,
-      f.extremidades.length ? join(f.extremidades) : "sin edemas ni signos de trombosis",
-      f.extremidadesObs,
-    ]),
-  )
-
-  lines.push(
-    line("ABDOMEN", [
-      f.abdomenForma,
-      `ruidos intestinales ${f.ruidosIntestinales.toLowerCase()}`,
-      f.abdomen.length ? join(f.abdomen) : undefined,
-      f.abdomenObs,
-    ]),
-  )
-
-  lines.push(
-    line("GENITALES", [
-      f.genitales.length ? join(f.genitales) : "Sin alteraciones",
-      f.sondaVesical !== "No" ? `sonda vesical ${f.sondaVesical.toLowerCase()}` : undefined,
-      f.genitalesObs,
-    ]),
-  )
-
-  lines.push(
-    line("LESIONES / PIEL", [
-      f.lesiones.length ? join(f.lesiones) : "Piel íntegra, sin lesiones",
-      f.lesionesObs,
-    ]),
-  )
-
-  if (f.eventos.trim()) {
-    lines.push(line("EVENTOS / OBSERVACIONES", [f.eventos]))
-  }
+  lines.push(line("NEUROLÓGICO", [`Paciente ${f.estadoConciencia.toLowerCase()}`, f.glasgow ? `Glasgow ${f.glasgow}/15` : undefined, `pupilas ${f.pupilas.toLowerCase()}`, f.neuroHallazgos.length ? `se evidencia ${join(f.neuroHallazgos).toLowerCase()}` : undefined, f.neuroObs]))
+  lines.push(line("HEMODINAMIA", [f.presionArterial ? `TA ${f.presionArterial} mmHg` : undefined, f.frecuenciaCardiaca ? `FC ${f.frecuenciaCardiaca} lpm` : undefined, `ritmo ${f.ritmo.toLowerCase()}`, f.hemoHallazgos.length ? join(f.hemoHallazgos) : undefined, f.hemoObs]))
+  lines.push(line("RESPIRATORIO", [`Patrón ${f.patronRespiratorio.toLowerCase()}`, f.saturacion ? `SatO2 ${f.saturacion}%` : undefined, `con ${f.soporteO2.toLowerCase()}`, f.respHallazgos.length ? `presenta ${join(f.respHallazgos).toLowerCase()}` : undefined, f.respObs]))
+  lines.push(line("CUELLO", [f.cuello.length ? join(f.cuello) : "Sin alteraciones", f.cuelloObs]))
+  lines.push(line("TÓRAX", [f.toraxAuscultacion, f.torax.length ? join(f.torax) : undefined, f.toraxObs]))
+  lines.push(line("EXTREMIDADES", [`Perfusión ${f.perfusion.toLowerCase()}`, f.extremidades.length ? join(f.extremidades) : "sin edemas ni signos de trombosis", f.extremidadesObs]))
+  lines.push(line("ABDOMEN", [f.abdomenForma, `ruidos intestinales ${f.ruidosIntestinales.toLowerCase()}`, f.abdomen.length ? join(f.abdomen) : undefined, f.abdomenObs]))
+  lines.push(line("GENITALES", [f.genitales.length ? join(f.genitales) : "Sin alteraciones", f.sondaVesical !== "No" ? `sonda vesical ${f.sondaVesical.toLowerCase()}` : undefined, f.genitalesObs]))
+  lines.push(line("LESIONES / PIEL", [f.lesiones.length ? join(f.lesiones) : "Piel íntegra, sin lesiones", f.lesionesObs]))
+  if (f.eventos.trim()) { lines.push(line("EVENTOS / OBSERVACIONES", [f.eventos])) }
 
   return lines.filter((l, i) => l !== "" || i === 1).join("\n")
 }

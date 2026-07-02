@@ -26,7 +26,7 @@ import {
   TextareaField,
   CheckboxGroup,
 } from "@/components/form-controls"
-import { generateAIContent, initialForm, type NursingForm } from "@/lib/generate-note
+import { generateAIContent, initialForm, type NursingForm } from "@/lib/generate-note";
 
 export function NursingNoteForm() {
   const [form, setForm] = useState<NursingForm>(initialForm)
