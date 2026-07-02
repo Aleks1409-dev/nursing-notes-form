@@ -26,7 +26,7 @@ import {
   TextareaField,
   CheckboxGroup,
 } from "@/components/form-controls"
-import { generateNote, initialForm, type NursingForm } from "@/lib/generate-note"
+import { generateAIContent, initialForm, type NursingForm } from "@/lib/generate-note
 
 export function NursingNoteForm() {
   const [form, setForm] = useState<NursingForm>(initialForm)
@@ -48,10 +48,15 @@ export function NursingNoteForm() {
     })
   }
 
-  function handleGenerate() {
-    setNote(generateNote(form))
+  async function handleGenerate() {
+    setNote("Generando nota con IA...")
     setCopied(false)
-    // Desplazar suavemente hacia el resultado en móvil
+    try {
+      const aiNote = await generateAIContent(form)
+      setNote(aiNote)
+    } catch (error) {
+      setNote("Error al generar la nota. Revisa tu API Key en Vercel.")
+    }
     requestAnimationFrame(() => {
       resultRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })
     })
@@ -103,9 +108,9 @@ export function NursingNoteForm() {
       </header>
 
       <form
-        onSubmit={(e) => {
+        onSubmit={async (e) => {
           e.preventDefault()
-          handleGenerate()
+          await handleGenerate()
         }}
         className="grid grid-cols-1 gap-5"
       >
